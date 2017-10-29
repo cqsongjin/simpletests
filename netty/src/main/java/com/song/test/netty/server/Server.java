@@ -28,7 +28,7 @@ public class Server {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline()
                                 .addLast(new LineBasedFrameDecoder(1024))
-                                .addLast(new ServerMessageHandler());
+                                .addLast(new OFDecoder());
                     }
                 });
         try {
