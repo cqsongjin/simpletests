@@ -15,6 +15,9 @@ public class OFDecoder extends ByteToMessageDecoder{
         protocol.setVersion((short) in.readUnsignedShort());
         protocol.setType((short) in.readUnsignedShort());
         protocol.setLength((int) in.readUnsignedInt());
-        System.out.println(protocol.getLength());
+        protocol.setXid((int) in.readUnsignedInt());
+        protocol.setMpDeviceType((int) in.readUnsignedInt());
+        protocol.setMpDeviceId((int) in.readUnsignedInt());
+        System.out.println(protocol.toString());
     }
 }

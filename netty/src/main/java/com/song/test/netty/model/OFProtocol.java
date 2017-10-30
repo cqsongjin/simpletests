@@ -4,6 +4,34 @@ public class OFProtocol {
     private short version;
     private short type;
     private int length;
+    private int xid;
+
+    public int getXid() {
+        return xid;
+    }
+
+    public void setXid(int xid) {
+        this.xid = xid;
+    }
+
+    public int getMpDeviceType() {
+        return MpDeviceType;
+    }
+
+    public void setMpDeviceType(int mpDeviceType) {
+        MpDeviceType = mpDeviceType;
+    }
+
+    public int getMpDeviceId() {
+        return MpDeviceId;
+    }
+
+    public void setMpDeviceId(int mpDeviceId) {
+        MpDeviceId = mpDeviceId;
+    }
+
+    private int MpDeviceType;
+    private int MpDeviceId;
 
     public short getVersion() {
         return version;
@@ -27,5 +55,17 @@ public class OFProtocol {
 
     public void setLength(int length) {
         this.length = length;
+    }
+
+    @Override
+    public String toString() {
+        return "OFProtocol{" +
+                "version=" + version +
+                ", type=" + type +
+                ", length=" + length +
+                ", xid=" + xid +
+                ", MpDeviceType=" + MpDeviceType +
+                ", MpDeviceId=" + MpDeviceId +
+                '}';
     }
 }

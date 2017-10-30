@@ -13,6 +13,9 @@ public class OFEncoder extends MessageToByteEncoder<OFProtocol>{
         out.writeShort(msg.getVersion());
         out.writeShort(msg.getType());
         out.writeInt(msg.getLength());
+        out.writeInt(msg.getXid());
+        out.writeInt(msg.getMpDeviceType());
+        out.writeInt(msg.getMpDeviceId());
         out.writeBytes("\n".getBytes());
     }
 }

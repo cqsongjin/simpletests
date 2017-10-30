@@ -15,6 +15,9 @@ public class ClientMessageHandler extends ChannelInboundHandlerAdapter {
         protocol.setVersion((short) 2);
         protocol.setType((short) 3);
         protocol.setLength(100);
+        protocol.setXid(123);
+        protocol.setMpDeviceType(001);
+        protocol.setMpDeviceId(123456);
         for (int i = 0; i < 100; i++) {
             ctx.channel().writeAndFlush(protocol);
             System.out.println("write message");
