@@ -2,6 +2,7 @@ package nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -13,7 +14,7 @@ public class NioClient {
         SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
         Selector selector = Selector.open();
-        SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT);
+        channel.register(selector, SelectionKey.OP_CONNECT);
         channel.connect(new InetSocketAddress("127.0.0.1", 8080));
         while (true) {
             int rdChannels = selector.select(100);
@@ -21,16 +22,34 @@ public class NioClient {
             Set<SelectionKey> selectKeys = selector.selectedKeys();
             Iterator<SelectionKey> iterator = selectKeys.iterator();
             while (iterator.hasNext()) {
-                SelectionKey key1 = iterator.next();
-                if (key1.isAcceptable()) {
-                    System.out.println("accept");
-                } else if (key1.isConnectable()) {
-                    System.out.println("connection");
-                    key.channel().register(selector, SelectionKey.OP_READ);
-                } else if (key1.isReadable()) {
-                    System.out.println("read");
-                } else if (key1.isWritable()) {
-                    System.out.println("write");
+                SelectionKey key = iterator.next();
+                if (key.isValid()) {
+                    SocketChannel channel1 = (SocketChannel) key.channel();
+                    if (key.isConnectable()) {
+                        if (channel1.finishConnect()) {
+                            System.out.println("connection");
+                            String message = "hello word!";
+                            ByteBuffer buffer = ByteBuffer.wrap(message.getBytes());
+//                            ByteBuffer buffer = ByteBuffer.allocate(1024);
+//                            buffer.put(message.getBytes("utf-8"));
+                            channel1.write(buffer);
+                            key.channel().register(selector, SelectionKey.OP_READ);
+                        }
+
+                    } else if (key.isReadable()) {
+                        System.out.println("read");
+                        ByteBuffer buffer = ByteBuffer.allocate(1024);
+                        int readBytes = channel1.read(buffer);
+                        if (readBytes > 0) {
+                            buffer.flip();
+                            byte[] bytes = new byte[buffer.remaining()];
+                            buffer.get(bytes);
+                            String message = new String(bytes, "utf-8");
+                            System.out.println("this message is : " + message);
+                        }
+                    } else if (key.isWritable()) {
+                        System.out.println("write");
+                    }
                 }
                 iterator.remove();
             }

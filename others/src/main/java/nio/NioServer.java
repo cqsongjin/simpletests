@@ -2,6 +2,7 @@ package nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -22,14 +23,39 @@ public class NioServer {
             Set<SelectionKey> selectKeys = selector.selectedKeys();
             Iterator<SelectionKey> iterator = selectKeys.iterator();
             while (iterator.hasNext()) {
-                SelectionKey key1 = iterator.next();
-                if (key1.isAcceptable()) {
+                SelectionKey key = iterator.next();
+                if (key.isAcceptable()) {
                     System.out.println("accept");
-                } else if (key1.isConnectable()) {
-                    System.out.println("connection");
-                } else if (key1.isReadable()) {
+                    ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+                    SocketChannel socket = serverSocketChannel.accept();
+                    socket.configureBlocking(false);
+                    socket.register(selector, SelectionKey.OP_READ);
+                } else if (key.isReadable()) {
                     System.out.println("read");
-                } else if (key1.isWritable()) {
+                    ByteBuffer buffer = ByteBuffer.allocate(1024);
+                    SocketChannel channel1 = (SocketChannel) key.channel();
+                    int readBytes = 0;
+                    try {
+                        readBytes = channel1.read(buffer);
+                    }catch (IOException e) {
+                        e.printStackTrace();
+                        channel1.close();
+                        iterator.remove();
+                        break;
+                    }
+                    if (readBytes > 0) {
+                        buffer.flip();
+                        byte[] bytes = new byte[buffer.remaining()];
+                        buffer.get(bytes);
+                        String message = new String(bytes, "utf-8");
+                        System.out.println("this message is : " + message);
+                        buffer.clear();
+                        buffer.put((message + ",too!").getBytes());
+                        buffer.flip();
+                        channel1.write(buffer);
+                    }
+
+                } else if (key.isWritable()) {
                     System.out.println("write");
                 }
                 iterator.remove();
